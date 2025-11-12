@@ -106,12 +106,8 @@ def extract_features(signal):
 
 def process_eeg_file(path):
     df = pd.read_csv(path)
-    eeg = df.iloc[:, EEG_START:EEG_END].to_numpy().T  # shape (14, n_samples)
-
-    # Discard first 10 samples and smooth each channel
+    eeg = df.iloc[:, EEG_START:EEG_END].to_numpy().T 
     eeg = np.array([iir_smoothing(ch[10:]) for ch in eeg])
-
-    # Feature extraction per channel
     all_feats = [extract_features(ch) for ch in eeg]
     n = min(f.shape[0] for f in all_feats)
     all_feats = [f[:n] for f in all_feats]
@@ -122,11 +118,8 @@ def process_eeg_file(path):
 
     return features_norm
 
-# ==============================================
-# Run
-# ==============================================
 if __name__ == "__main__":
     input_path = "Test0_2019.08.18_14.15.17.csv"
     features = process_eeg_file(input_path)
     pd.DataFrame(features).to_csv("EEG_features_normalized.csv", index=False)
-    print(f"✅ Done. Saved {features.shape[0]} windows × {features.shape[1]} features to 'EEG_features_normalized.csv'.")
+
